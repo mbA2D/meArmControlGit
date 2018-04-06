@@ -28,27 +28,8 @@
 	#define SHOULDER_MAX_POSITION 179 //all the way backwards
 
 meArmControlGit::meArmControlGit(){
-	//defaults - Base on 6, Sholder on 9, Elbow on 10, Claw on 11
-	//meArmControlGit(6, 9, 10, 11);
-}
 
-/*meArmControlGit::meArmControlGit(int pinBase, int pinShoulder, int pinElbow, int pinGripper){
-	_pinBase = pinBase;
-	_pinShoulder = pinShoulder;
-	_pinElbow = pinElbow;
-	_pinGripper = pinGripper;
-	
-	_base.attach(_pinBase);
-	_shoulder.attach(_pinShoulder);
-	_elbow.attach(_pinElbow);
-	_gripper.attach(_pinGripper);
-	
-	//Serial.begin(115200);
-	//_base.write(98);
-	//Serial.println(_base.read());
-	//delay(50000000);
-	
-}*/
+}
 
 void meArmControlGit::beginArm(int pinBase, int pinShoulder, int pinElbow, int pinGripper){
 	_pinBase = pinBase;
@@ -68,16 +49,8 @@ void meArmControlGit::moveGripperServo(int _gVal){
 }
 
 void meArmControlGit::moveBaseServo(int _bVal){
-	_base.write(_bVal);
-	Serial.println(_base.read());
-	/*
-	if(_bVal < 200) {_base.write(_bVal); 
-	Serial.print("Base: "); 
-	Serial.print(_bVal); 
-	Serial.println(_base.read()); 
-	return;} //upper and lower bounds for angles
-	_base.writeMicroseconds(constrain(_bVal, 400, 2800)); return;//upper and lower bounds for servo Us
-	*/
+	if(_gVal < 200) {_gripper.write(_gVal); Serial.print("Gripper: "); Serial.print(_gVal); return;} //upper and lower bounds for angles
+	_gripper.writeMicroseconds(constrain(_gVal, 400, 2800)); return;//upper and lower bounds for servo Us
 }
 
 void meArmControlGit::moveShoulderServo(int _sVal){
@@ -91,9 +64,10 @@ void meArmControlGit::moveElbowServo(int _eVal){
 }
 
 //we want to be able to control the arm based on 3 values - height, distance, and base angle.
-void meArmControlGit::moveArm(int Height, int Distance, int Base){
+void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degrees
 	//check the current height and distance to see if it changes.
 	
+	//add an is reachable function
 	
 	//apply offsets and constrain values
 
