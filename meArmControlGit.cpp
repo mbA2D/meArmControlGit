@@ -28,7 +28,10 @@
 	#define SHOULDER_MAX_POSITION 179 //all the way backwards
 
 meArmControlGit::meArmControlGit(){
-
+	//starting values so that the function will runand not use uninitialized variables.
+	_Height = 10;
+	_Distance = 10;
+	_Base = 10;
 }
 
 void meArmControlGit::beginArm(int pinBase, int pinShoulder, int pinElbow, int pinGripper){
@@ -119,6 +122,10 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		Serial.println(ElbowServoUs);
 		Serial.println("");
 		
+		//update the height and distance
+		_Height = Height;
+		_Distance = Distance;
+		
 		//Now move the servos
 		moveElbowServo(ElbowServoUs);
 		moveShoulderServo(ShoulderServoUs);
@@ -126,7 +133,9 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 	}
 	
 	if(Base != _Base){
+		//move the servo and update the position
 		moveBaseServo(Base);
+		_Base = Base;
 	}
 }
 

@@ -12,7 +12,7 @@ void setup() {
   // put your setup code here, to run once:
   //attach all servos
   arm.begin(basePin, shoulderPin, elbowPin, gripperPin);
-  
+  delay(500);
   Serial.begin(115200);
   
   //move all servos to 90 deg.
