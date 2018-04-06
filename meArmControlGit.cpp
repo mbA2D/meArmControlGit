@@ -67,64 +67,81 @@ void meArmControlGit::moveElbowServo(int _eVal){
 void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degrees
 	//check the current height and distance to see if it changes.
 	
-	//add an is reachable function
+	if((Height != _Height) || (Distance != _Distance)){ //if height or distance have changed.
 	
-	//apply offsets and constrain values
+		//add an isReachable() function
+		
+		//apply offsets and constrain values
 
-	//Height += CLAW_OFFSET_Y;
-	Height -= SHOULDER_Y;
-	Distance -= CLAW_OFFSET_X;
-	Distance += SHOULDER_X;
+		//Height += CLAW_OFFSET_Y;
+		Height -= SHOULDER_Y;
+		Distance -= CLAW_OFFSET_X;
+		Distance += SHOULDER_X;
+		
+		Height = constrain(Height, -60, 160);
+		Distance = constrain(Distance, 30, 160);
+		
+		Serial.print("Triangle Height: ");
+		Serial.println(Height);
+		Serial.print("Triangle Distance: ");
+		Serial.println(Distance);
+		Serial.println("");
+		
+		//these are the three distances in the triangle.
+		float ShoulderToWristDist = sqrt((sq(Distance))+(sq(Height))); //hypotenuse of distance, height triangle.
+		float ShoulderToElbowDist = (float)ShoulderElbowLength;
+		float ElbowToWristDist = (float)ElbowWristLength;
+		//these are the three angles
+		float ShoulderAngle = RadToDeg(acos((sq(ShoulderToWristDist) - sq(ShoulderToElbowDist) - sq(ElbowToWristDist)) / (-2 * (ShoulderToWristDist) * (ShoulderToElbowDist)))); //cosine law
+		float WristAngle = ShoulderAngle;
+		float ElbowAngle = 180 - (2*WristAngle); //Elbow angle is not needed.
+		
+		Serial.print("Shoulder Angle: ");
+		Serial.println(ShoulderAngle);
+		Serial.print("WristAngle: ");
+		Serial.println(WristAngle);
+		Serial.println("");
+		
+		//adjust angle relative to X-axis
+		float adjust = RadToDeg(atan(Height / Distance));
+		ShoulderAngle += adjust;
+		ElbowAngle -= adjust;
+		
+		//then write to servos based on calibration data, mapping the values.
+		
+		//Target Us Values
+		int ShoulderServoUs = map(ShoulderAngle, SHOULDER_MIN_POSITION, SHOULDER_MAX_POSITION, SHOULDER_MIN_VALUE, SHOULDER_MAX_VALUE);
+		int ElbowServoUs = map(ElbowAngle, ELBOW_MIN_POSITION, ELBOW_MAX_POSITION, ELBOW_MIN_VALUE, ELBOW_MAX_VALUE);
+		
+		Serial.print("ShoulderServoUs: ");
+		Serial.println(ShoulderServoUs);
+		Serial.print("ElbowServoUs: ");
+		Serial.println(ElbowServoUs);
+		Serial.println("");
+		
+		//Now move the servos
+		moveElbowServo(ElbowServoUs);
+		moveShoulderServo(ShoulderServoUs);
 	
-	Height = constrain(Height, -60, 160);
-	Distance = constrain(Distance, 30, 160);
+	}
 	
-	Serial.print("Triangle Height: ");
-	Serial.println(Height);
-	Serial.print("Triangle Distance: ");
-	Serial.println(Distance);
-	Serial.println("");
-	
-	//these are the three distances in the triangle.
-	float ShoulderToWristDist = sqrt((sq(Distance))+(sq(Height))); //hypotenuse of distance, height triangle.
-	float ShoulderToElbowDist = (float)ShoulderElbowLength;
-	float ElbowToWristDist = (float)ElbowWristLength;
-	//these are the three angles
-	float ShoulderAngle = RadToDeg(acos((sq(ShoulderToWristDist) - sq(ShoulderToElbowDist) - sq(ElbowToWristDist)) / (-2 * (ShoulderToWristDist) * (ShoulderToElbowDist)))); //cosine law
-	float WristAngle = ShoulderAngle;
-	float ElbowAngle = 180 - (2*WristAngle); //Elbow angle is not needed.
-	
-	Serial.print("Shoulder Angle: ");
-	Serial.println(ShoulderAngle);
-	Serial.print("WristAngle: ");
-	Serial.println(WristAngle);
-	Serial.println("");
-	
-	//adjust angle relative to X-axis
-	float adjust = RadToDeg(atan(Height / Distance));
-	ShoulderAngle += adjust;
-    ElbowAngle -= adjust;
-	
-	//then write to servos based on calibration data, mapping the values.
-	
-	//Target Us Values
-	int ShoulderServoUs = map(ShoulderAngle, SHOULDER_MIN_POSITION, SHOULDER_MAX_POSITION, SHOULDER_MIN_VALUE, SHOULDER_MAX_VALUE);
-	int ElbowServoUs = map(ElbowAngle, ELBOW_MIN_POSITION, ELBOW_MAX_POSITION, ELBOW_MIN_VALUE, ELBOW_MAX_VALUE);
-	
-	Serial.print("ShoulderServoUs: ");
-	Serial.println(ShoulderServoUs);
-	Serial.print("ElbowServoUs: ");
-	Serial.println(ElbowServoUs);
-	Serial.println("");
-	
-	//Now move the servos
-	moveElbowServo(ElbowServoUs);
-	moveShoulderServo(ShoulderServoUs);
-	
-	moveBaseServo(Base);
-	
+	if(Base != _Base){
+		moveBaseServo(Base);
+	}
 }
 
 float meArmControlGit::RadToDeg(float Rad){
     return (Rad * (180/pi));
+}
+
+int getHeight(){
+	return _Height;
+}
+
+int getDistance(){
+	return _Distance;
+}
+
+int getBase(){
+	return _Base;
 }

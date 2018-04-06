@@ -10,28 +10,31 @@
 #include <Servo.h>
 #include <math.h>
 
-
-
 class meArmControlGit
 {
   public:
     meArmControlGit(); //defaults to 6,9,10,11 - timers may need to be changed.
-	void beginArm(int pinBase, int pinShoulder, int pinElbow, int pinGripper)
-	void moveGripperServo(int _gVal);
-	void moveBaseServo(int _bVal);
-	void moveShoulderServo(int _sVal);
-	void moveElbowServo(int _eVal);
+	void beginArm(uint8_t pinBase, uint8_t pinShoulder, uint8_t pinElbow, uint8_t pinGripper)
+	void moveGripperServo(double _gVal);
+	void moveBaseServo(double _bVal);
+	void moveShoulderServo(double _sVal);
+	void moveElbowServo(double _eVal);
 	
 	//another function to move the servos smoothly.
 	
 	//move the arm - this will calculate the angles based on the desired height and distance.
-	void moveArm(int Height, int Distance, int Base);
+	void moveArm(int Height, int Distance, int Base); //Base 0-180
+	int getHeight();
+	int getDistance();
+	int getBase();
 	
   private:
 	//we need 3 lengths in here -  (all length in mm)
-	int ShoulderElbowLength = 80;//
+	int ShoulderElbowLength = 80;//length between point of rotation at elbow and point of rotation at shoulder
 	int ElbowWristLength = 80; //
-	int BaseClawOffest = 40; //
+	int BaseClawOffest = 40; //horizontal offset of where it block is gripped to the point of rotation at the wrist, and the point shoulder set back from where you want to measure from
+  
+	int _Height, _Distance, _Base;
   
     Servo _base, _shoulder, _elbow, _gripper;
 	int _pinBase, _pinShoulder, _pinElbow, _pinGripper;
