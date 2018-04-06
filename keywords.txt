@@ -1,0 +1,6 @@
+meArmControlGit	KEYWORD1
+moveGripperServo	KEYWORD2
+moveElbowServo	KEYWORD2
+moveBaseServo	KEYWORD2
+moveShoulderServo	KEYWORD2
+moveArm	KEYWORD2
