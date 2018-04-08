@@ -25,7 +25,7 @@
 	
 	//Shoulder degrees positions
 	#define SHOULDER_MIN_POSITION 0 //relative to X - all the way forwards
-	#define SHOULDER_MAX_POSITION 179 //all the way backwards
+	#define SHOULDER_MAX_POSITION 170 //all the way backwards
 
 meArmControlGit::meArmControlGit(){
 	//starting values so that the function will runand not use uninitialized variables.
@@ -34,7 +34,7 @@ meArmControlGit::meArmControlGit(){
 	_Base = 10;
 }
 
-void meArmControlGit::beginArm(int pinBase, int pinShoulder, int pinElbow, int pinGripper){
+void meArmControlGit::beginArm(uint8_t pinBase, uint8_t pinShoulder, uint8_t pinElbow, uint8_t pinGripper){
 	_pinBase = pinBase;
 	_pinShoulder = pinShoulder;
 	_pinElbow = pinElbow;
@@ -46,22 +46,22 @@ void meArmControlGit::beginArm(int pinBase, int pinShoulder, int pinElbow, int p
 	_gripper.attach(_pinGripper);
 }
 
-void meArmControlGit::moveGripperServo(int _gVal){
+void meArmControlGit::moveGripperServo(double _gVal){
 	if(_gVal < 200) {_gripper.write(_gVal); Serial.print("Gripper: "); Serial.print(_gVal); return;} //upper and lower bounds for angles
 	_gripper.writeMicroseconds(constrain(_gVal, 400, 2800)); return;//upper and lower bounds for servo Us
 }
 
-void meArmControlGit::moveBaseServo(int _bVal){
-	if(_gVal < 200) {_gripper.write(_gVal); Serial.print("Gripper: "); Serial.print(_gVal); return;} //upper and lower bounds for angles
-	_gripper.writeMicroseconds(constrain(_gVal, 400, 2800)); return;//upper and lower bounds for servo Us
+void meArmControlGit::moveBaseServo(double _bVal){
+	if(_bVal < 200) {_base.write(_bVal); Serial.print("Gripper: "); Serial.print(_bVal); return;} //upper and lower bounds for angles
+	_base.writeMicroseconds(constrain(_bVal, 400, 2800)); return;//upper and lower bounds for servo Us
 }
 
-void meArmControlGit::moveShoulderServo(int _sVal){
+void meArmControlGit::moveShoulderServo(double _sVal){
 	if(_sVal < 200) {_shoulder.write(_sVal); Serial.print("Shoulder: "); Serial.println(_sVal);return;} //upper and lower bounds for angles
 	_shoulder.writeMicroseconds(constrain(_sVal, 400, 2800)); return; //upper and lower bounds for servo Us
 }
 
-void meArmControlGit::moveElbowServo(int _eVal){
+void meArmControlGit::moveElbowServo(double _eVal){
 	if(_eVal < 200) {_elbow.write(_eVal); Serial.print("Elbow: "); Serial.println(_eVal);return;} //upper and lower bounds for angles
 	_elbow.writeMicroseconds(constrain(_eVal, 400, 2800)); return; //upper and lower bounds for servo Us
 }
@@ -143,14 +143,14 @@ float meArmControlGit::RadToDeg(float Rad){
     return (Rad * (180/pi));
 }
 
-int getHeight(){
+int meArmControlGit::getHeight(){
 	return _Height;
 }
 
-int getDistance(){
+int meArmControlGit::getDistance(){
 	return _Distance;
 }
 
-int getBase(){
+int meArmControlGit::getBase(){
 	return _Base;
 }

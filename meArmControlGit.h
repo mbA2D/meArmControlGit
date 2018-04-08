@@ -13,8 +13,8 @@
 class meArmControlGit
 {
   public:
-    meArmControlGit(); //defaults to 6,9,10,11 - timers may need to be changed.
-	void beginArm(uint8_t pinBase, uint8_t pinShoulder, uint8_t pinElbow, uint8_t pinGripper)
+    meArmControlGit();
+	void beginArm(uint8_t pinBase, uint8_t pinShoulder, uint8_t pinElbow, uint8_t pinGripper);
 	void moveGripperServo(double _gVal);
 	void moveBaseServo(double _bVal);
 	void moveShoulderServo(double _sVal);
