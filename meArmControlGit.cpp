@@ -1,6 +1,7 @@
 /*
   https://www.arduino.cc/en/Hacking/LibraryTutorial
   https://github.com/yorkhackspace/meArm
+ 
  */
 
 #include "Arduino.h"
@@ -8,16 +9,23 @@
 #include "Servo.h"
 
 	#define pi 3.14159	
-		
+	
 	#define CLAW_OFFSET_X 67 //mm
 	#define CLAW_OFFSET_Y (15) //mm bigger to account for 'play' in the base servo
 	#define SHOULDER_X (17) //mm  point of rotation offset from the point measured from
 	#define SHOULDER_Y 53 //mm
 
-	#define SHOULDER_MIN_VALUE 2400 //when shoulder servo is as far forward as it can be
-	#define SHOULDER_MAX_VALUE 600 //when shoulder servo is as far backwards as it can be
-	#define ELBOW_MIN_VALUE 1800 //when elbow servo arm is at -30 degrees to X axis
+	//other values
+	//#define SHOULDER_MIN_VALUE 2400 //when shoulder servo is as far forward as it can be
+	//#define SHOULDER_MAX_VALUE 600 //when shoulder servo is as far backwards as it can be
+	//#define ELBOW_MIN_VALUE 1800 //when elbow servo arm is at -30 degrees to X axis
+	//#define ELBOW_MAX_VALUE 600 //when elbow servo arm is at 90 degress to X axis
+
+	#define SHOULDER_MIN_VALUE 2200 //when shoulder servo is as far forward as it can be
+	#define SHOULDER_MAX_VALUE 700 //when shoulder servo is as far backwards as it can be
+	#define ELBOW_MIN_VALUE 1600 //when elbow servo arm is at -30 degrees to X axis
 	#define ELBOW_MAX_VALUE 600 //when elbow servo arm is at 90 degress to X axis
+	
 	
 	//Elbow degrees positions
 	#define ELBOW_MIN_POSITION (-30) //relative to X
@@ -47,12 +55,12 @@ void meArmControlGit::beginArm(uint8_t pinBase, uint8_t pinShoulder, uint8_t pin
 }
 
 void meArmControlGit::moveGripperServo(double _gVal){
-	if(_gVal < 200) {_gripper.write(_gVal); Serial.print("Gripper: "); Serial.print(_gVal); return;} //upper and lower bounds for angles
+	if(_gVal < 200) {_gripper.write(_gVal); Serial.print("Gripper: "); Serial.println(_gVal); return;} //upper and lower bounds for angles
 	_gripper.writeMicroseconds(constrain(_gVal, 400, 2800)); return;//upper and lower bounds for servo Us
 }
 
 void meArmControlGit::moveBaseServo(double _bVal){
-	if(_bVal < 200) {_base.write(_bVal); Serial.print("Gripper: "); Serial.print(_bVal); return;} //upper and lower bounds for angles
+	if(_bVal < 200) {_base.write(_bVal); Serial.print("Base: "); Serial.println(_bVal); return;} //upper and lower bounds for angles
 	_base.writeMicroseconds(constrain(_bVal, 400, 2800)); return;//upper and lower bounds for servo Us
 }
 
@@ -75,8 +83,15 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		//add an isReachable() function
 		
 		//apply offsets and constrain values
-
-		//Height += CLAW_OFFSET_Y;
+		
+		Serial.println("Trying to go to:");
+		Serial.print("Height: ");
+		Serial.println(Height);
+		Serial.print("Triangle Distance: ");
+		Serial.println(Distance);
+		Serial.println("");
+		
+		Height += CLAW_OFFSET_Y;
 		Height -= SHOULDER_Y;
 		Distance -= CLAW_OFFSET_X;
 		Distance += SHOULDER_X;
@@ -84,7 +99,8 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		Height = constrain(Height, -60, 160);
 		Distance = constrain(Distance, 30, 160);
 		
-		Serial.print("Triangle Height: ");
+		Serial.println("Offsets applied");
+		Serial.print("Height: ");
 		Serial.println(Height);
 		Serial.print("Triangle Distance: ");
 		Serial.println(Distance);
@@ -94,21 +110,44 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		float ShoulderToWristDist = sqrt((sq(Distance))+(sq(Height))); //hypotenuse of distance, height triangle.
 		float ShoulderToElbowDist = (float)ShoulderElbowLength;
 		float ElbowToWristDist = (float)ElbowWristLength;
+		
+		Serial.println("Triangle Edges");
+		Serial.print("StoW dist: ");
+		Serial.println(ShoulderToWristDist);
+		Serial.print("StoE dist: ");
+		Serial.println(ShoulderToElbowDist);
+		Serial.print("EtoW dist: ");
+		Serial.println(ElbowToWristDist);
+		Serial.println("");
+		
 		//these are the three angles
-		float ShoulderAngle = RadToDeg(acos((sq(ShoulderToWristDist) - sq(ShoulderToElbowDist) - sq(ElbowToWristDist)) / (-2 * (ShoulderToWristDist) * (ShoulderToElbowDist)))); //cosine law
+		float ShoulderAngle = RadToDeg(acos(ShoulderToWristDist / (2 * ShoulderToElbowDist)));
+		//float ShoulderAngle = RadToDeg(acos((sq(ShoulderToWristDist) - sq(ShoulderToElbowDist) - sq(ElbowToWristDist)) / (-2 * (ShoulderToWristDist) * (ShoulderToElbowDist)))); //cosine law
+		//ShoulderAngle = 180 - ShoulderAngle;
 		float WristAngle = ShoulderAngle;
 		float ElbowAngle = 180 - (2*WristAngle); //Elbow angle is not needed.
 		
+		Serial.println("Angles in triangle");
 		Serial.print("Shoulder Angle: ");
 		Serial.println(ShoulderAngle);
 		Serial.print("WristAngle: ");
 		Serial.println(WristAngle);
+		Serial.print("ElbowAngle: ");
+		Serial.println(ElbowAngle);
 		Serial.println("");
 		
 		//adjust angle relative to X-axis
 		float adjust = RadToDeg(atan(Height / Distance));
 		ShoulderAngle += adjust;
+		//ShoulderAngle = 180 - ShoulderAngle;
 		ElbowAngle -= adjust;
+		
+		Serial.println("Adjusted angles for servos");
+		Serial.print("Shoulder Angle: ");
+		Serial.println(ShoulderAngle);
+		Serial.print("Elbow Angle: ");
+		Serial.println(ElbowAngle);
+		Serial.println();
 		
 		//then write to servos based on calibration data, mapping the values.
 		
@@ -116,6 +155,7 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		int ShoulderServoUs = map(ShoulderAngle, SHOULDER_MIN_POSITION, SHOULDER_MAX_POSITION, SHOULDER_MIN_VALUE, SHOULDER_MAX_VALUE);
 		int ElbowServoUs = map(ElbowAngle, ELBOW_MIN_POSITION, ELBOW_MAX_POSITION, ELBOW_MIN_VALUE, ELBOW_MAX_VALUE);
 		
+		Serial.println("Servo Microseconds values");
 		Serial.print("ShoulderServoUs: ");
 		Serial.println(ShoulderServoUs);
 		Serial.print("ElbowServoUs: ");
