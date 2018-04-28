@@ -11,7 +11,7 @@
 	#define pi 3.14159	
 	
 	#define CLAW_OFFSET_X 67 //mm
-	#define CLAW_OFFSET_Y (15) //mm bigger to account for 'play' in the base servo
+	#define CLAW_OFFSET_Y (5) //mm bigger to account for 'play' in the base servo
 	#define SHOULDER_X (17) //mm  point of rotation offset from the point measured from
 	#define SHOULDER_Y 53 //mm
 
@@ -21,10 +21,10 @@
 	//#define ELBOW_MIN_VALUE 1800 //when elbow servo arm is at -30 degrees to X axis
 	//#define ELBOW_MAX_VALUE 600 //when elbow servo arm is at 90 degress to X axis
 
-	#define SHOULDER_MIN_VALUE 2200 //when shoulder servo is as far forward as it can be
-	#define SHOULDER_MAX_VALUE 700 //when shoulder servo is as far backwards as it can be
-	#define ELBOW_MIN_VALUE 1600 //when elbow servo arm is at -30 degrees to X axis
-	#define ELBOW_MAX_VALUE 600 //when elbow servo arm is at 90 degress to X axis
+	#define SHOULDER_MIN_VALUE 2400 //when shoulder servo is as far forward as it can be
+	#define SHOULDER_MAX_VALUE 900 //when shoulder servo is as far backwards as it can be
+	#define ELBOW_MIN_VALUE 1800 //when elbow servo arm is at -30 degrees to X axis
+	#define ELBOW_MAX_VALUE 700 //when elbow servo arm is at 90 degress to X axis
 	
 	
 	//Elbow degrees positions
@@ -94,10 +94,14 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		Height += CLAW_OFFSET_Y;
 		Height -= SHOULDER_Y;
 		Distance -= CLAW_OFFSET_X;
+		Serial.print("After claw offset: ");
+		Serial.println(Distance);
 		Distance += SHOULDER_X;
+		Serial.print("After shoulder offset: ");
+		Serial.println(Distance);
 		
 		Height = constrain(Height, -60, 160);
-		Distance = constrain(Distance, 30, 160);
+		Distance = constrain(Distance, 1, 160);
 		
 		Serial.println("Offsets applied");
 		Serial.print("Height: ");
@@ -137,10 +141,18 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		Serial.println("");
 		
 		//adjust angle relative to X-axis
-		float adjust = RadToDeg(atan(Height / Distance));
+		float adjust = RadToDeg(atan((float)Height / (float)Distance));
+		Serial.print("Adjustment: ");
+		//adjust = 90;
+		Serial.println(RadToDeg(atan(Height / Distance)));
+		Serial.println(RadToDeg(atan((float)Height / (float)Distance)));
+		Serial.println(adjust);
 		ShoulderAngle += adjust;
 		//ShoulderAngle = 180 - ShoulderAngle;
-		ElbowAngle -= adjust;
+		//ElbowAngle -= adjust;
+		Serial.println(ElbowAngle - adjust);
+		ElbowAngle = 180-ShoulderAngle-ElbowAngle;
+		Serial.println(ElbowAngle);
 		
 		Serial.println("Adjusted angles for servos");
 		Serial.print("Shoulder Angle: ");
