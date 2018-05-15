@@ -10,9 +10,9 @@
 
 	#define pi 3.14159	
 	
-	#define CLAW_OFFSET_X 67 //mm
+	#define CLAW_OFFSET_X 60 //mm
 	#define CLAW_OFFSET_Y (5) //mm bigger to account for 'play' in the base servo
-	#define SHOULDER_X (17) //mm  point of rotation offset from the point measured from
+	#define SHOULDER_X (20) //mm  point of rotation offset from the point measured from
 	#define SHOULDER_Y 53 //mm
 
 	//other values
@@ -26,6 +26,9 @@
 	#define ELBOW_MIN_VALUE 1800 //when elbow servo arm is at -30 degrees to X axis
 	#define ELBOW_MAX_VALUE 700 //when elbow servo arm is at 90 degress to X axis
 	
+	#define OPEN_CLAW_US 1800 //when the claw is open enough to grab a block
+	#define CLOSE_CLAW_US 2300 //claw is closed to hold the block
+	//have another one to open the claw just enough to release?
 	
 	//Elbow degrees positions
 	#define ELBOW_MIN_POSITION (-30) //relative to X
@@ -77,6 +80,11 @@ void meArmControlGit::moveElbowServo(double _eVal){
 //we want to be able to control the arm based on 3 values - height, distance, and base angle.
 void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degrees
 	//check the current height and distance to see if it changes.
+	
+	int currentDist = sqrt(sq(_Height) + sq(_Distance));
+	int targetDist = sqrt(sq(_Height) + sq(_Distance));
+	int travelDist = abs(targetDist - currentDist);
+	Serial.println("TravelDist:" + travelDist);
 	
 	if((Height != _Height) || (Distance != _Distance)){ //if height or distance have changed.
 	
@@ -189,6 +197,20 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		moveBaseServo(Base);
 		_Base = Base;
 	}
+	
+	//delay based on travelDist
+	//delay if required for base movement
+	//larger of the delays required for base and travel movement.
+}
+
+void meArmControlGit::openClaw(){
+	moveGripperServo(OPEN_CLAW_US);
+	Serial.println("Claw is open");
+}
+
+void meArmControlGit::closeClaw(){
+	moveGripperServo(CLOSE_CLAW_US);
+	Serial.println("Claw is closed");
 }
 
 float meArmControlGit::RadToDeg(float Rad){
