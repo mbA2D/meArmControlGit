@@ -10,7 +10,8 @@
 
 	#define pi 3.14159	
 	
-	#define CLAW_OFFSET_X 60 //mm
+	//#define CLAW_OFFSET_X 60 //mm
+	#define CLAW_OFFSET_X 70 //mm
 	#define CLAW_OFFSET_Y (5) //mm bigger to account for 'play' in the base servo
 	#define SHOULDER_X (20) //mm  point of rotation offset from the point measured from
 	#define SHOULDER_Y 53 //mm
