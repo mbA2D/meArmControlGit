@@ -7,8 +7,7 @@
 #include "Arduino.h"
 #include "meArmControlGit.h"
 #include "Servo.h"
-
-	#define pi 3.14159	
+	#define pi 3.14159265
 	
 	#define CLAW_OFFSET_X 80 //mm
 	#define CLAW_OFFSET_Y (5) //mm bigger to account for 'play' in the base servo
@@ -26,7 +25,8 @@
 	#define ELBOW_MIN_VALUE 1800 //when elbow servo arm is at -30 degrees to X axis
 	#define ELBOW_MAX_VALUE 700 //when elbow servo arm is at 90 degress to X axis
 	
-	#define OPEN_CLAW_US 1800 //when the claw is open enough to grab a block
+	#define OPEN_CLAW_US 1600 //when the claw is open enough to grab a block
+	#define RELEASE_CLAW_US 1750 //open just enough to release the block
 	#define CLOSE_CLAW_US 2300 //claw is closed to hold the block
 	//have another one to open the claw just enough to release?
 	
@@ -115,7 +115,7 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 		//Serial.print("After shoulder offset: ");
 		//Serial.println(Distance);
 		
-		Height = constrain(Height, 0, 160);
+		Height = constrain(Height, -20, 160);
 		Distance = constrain(Distance, 1, 160);
 		
 		/*
@@ -231,6 +231,11 @@ void meArmControlGit::moveArm(int Height, int Distance, int Base){//mm, mm, degr
 void meArmControlGit::openClaw(){
 	moveGripperServo(OPEN_CLAW_US);
 	Serial.println("Claw is open");
+}
+
+void meArmControlGit::releaseClaw(){
+	moveGripperServo(RELEASE_CLAW_US);
+	Serial.println("Claw is released");
 }
 
 void meArmControlGit::closeClaw(){
