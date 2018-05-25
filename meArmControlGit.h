@@ -21,6 +21,7 @@ class meArmControlGit
 	void moveElbowServo(double _eVal);
 	void openClaw();
 	void closeClaw();
+	void releaseClaw();
 	
 	//another function to move the servos smoothly.
 	
